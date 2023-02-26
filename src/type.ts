@@ -7,6 +7,7 @@ export interface CharacterAnimationType {
   leftRun: THREE.AnimationAction | undefined;
   rightRun: THREE.AnimationAction | undefined;
   hit: THREE.AnimationAction | undefined;
+  hitSecond: THREE.AnimationAction | undefined;
   getHit: THREE.AnimationAction | undefined;
 }
 

@@ -204,6 +204,7 @@ class Game {
       rightRun: undefined,
       getHit: undefined,
       hit: undefined,
+      hitSecond: undefined,
     };
 
     const onLoad = (name: string, animation: THREE.Group) => {
@@ -244,6 +245,7 @@ class Game {
       { url: "/assets/right strafe.fbx", name: "rightRun" },
       { url: "/assets/Big Hit To Head.fbx", name: "getHit" },
       { url: "/assets/Punching.fbx", name: "hit" },
+      { url: "/assets/Punching_s.fbx", name: "hitSecond" },
     ];
 
     const animationsModels = await Promise.all(
@@ -264,18 +266,16 @@ class Game {
       mouse: this.mouse_control,
     });
 
-    this.character_control = new Character_control({
-      character: this.character,
-      control: this.control,
-      camera: this.camera,
-      scene: this.scene,
-      input,
-      mouse: this.mouse_control,
-    });
-
     this.character_animation = new Character_animation({
       animations: characterAnimations,
       input,
+    });
+
+    this.character_control = new Character_control({
+      character: this.character,
+      input,
+      mouse: this.mouse_control,
+      animation: this.character_animation,
     });
   }
 

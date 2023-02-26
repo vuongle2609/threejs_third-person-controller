@@ -1,17 +1,16 @@
 import * as THREE from "three";
 import { Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import Character_animation from "./animation";
 import { GRAVITY, JUMP_FORCE, SPEED } from "./configs/constants";
 import BasicCharacterControllerInput from "./input";
 import MouseControl from "./mouseMove";
 
 interface PropsType {
   character: THREE.Object3D;
-  control: OrbitControls;
-  camera: THREE.PerspectiveCamera;
-  scene: THREE.Scene;
   input: BasicCharacterControllerInput;
   mouse: MouseControl;
+  animation: Character_animation;
 }
 
 export default class Character_control {
@@ -25,14 +24,13 @@ export default class Character_control {
   airDirection: Vector3 | null;
   scene: THREE.Scene;
   mouse_control: MouseControl;
+  animation: Character_animation;
 
-  constructor({ character, control, camera, scene, input, mouse }: PropsType) {
-    this.scene = scene;
-    this.camera = camera;
+  constructor({ character, input, mouse, animation }: PropsType) {
     this.input = input;
-    this.control = control;
     this.character = character;
     this.mouse_control = mouse;
+    this.animation = animation;
 
     this.currentPosition = new Vector3();
   }
@@ -163,10 +161,11 @@ export default class Character_control {
         )
       );
     }
-
-    this.character.position
-      .add(new Vector3(moveVector2.x, 0, moveVector2.z))
-      .add(gravityVector);
+    
+    if (!this.animation.preventAction)
+      this.character.position
+        .add(new Vector3(moveVector2.x, 0, moveVector2.z))
+        .add(gravityVector);
   }
 
   update(deltaT: number) {
