@@ -1,15 +1,16 @@
 // character
-// no more than 4
-export const SPEED = 0.25;
+export const SPEED = 16;
 export const GRAVITY = 63;
-export const JUMP_FORCE = 25;
-// export const JUMP_FORCE = 25;
+export const JUMP_FORCE = 20;
+
+export const ROLL_DOWN_FORCE = -5;
+export const ROLL_UP_FORCE = 5;
 
 // camera
-export const FOV = 20;
+export const FOV = 28;
 export const ASPECT = window.innerWidth / window.innerHeight;
 export const NEAR = 1.0;
-export const FAR = 500;
+export const FAR = 20000;
 export const CAMERA_HEIGHT_FROM_CHARACTER = 30;
 export const CAMERA_FAR_FROM_CHARACTER = CAMERA_HEIGHT_FROM_CHARACTER * 1.36;
 

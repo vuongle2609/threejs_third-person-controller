@@ -50,9 +50,17 @@ class Game {
       false
     );
 
+    const skyboxTexture = new THREE.CubeTextureLoader().load([
+      "/assets/sky/px.png",
+      "/assets/sky/nx.png",
+      "/assets/sky/py.png",
+      "/assets/sky/ny.png",
+      "/assets/sky/pz.png",
+      "/assets/sky/nz.png",
+    ]);
+
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color("#DEF5E5");
-    this.scene.add(new THREE.AxesHelper(200));
+    this.scene.background = skyboxTexture;
 
     this.camera = new THREE.PerspectiveCamera(FOV, ASPECT, NEAR, FAR);
 
@@ -98,61 +106,6 @@ class Game {
     plane.position.set(0, 0, 0);
     plane.receiveShadow = true;
     this.scene.add(plane);
-
-    const wallsArray = [
-      {
-        position: [0, 3, -20],
-        size: [40, 10, 2],
-        rotation: [0, 0, 0],
-      },
-      {
-        position: [-20, 3, 0],
-        size: [30, 10, 2],
-        rotation: [0, 0, 0],
-      },
-      {
-        position: [-40, 3, -20],
-        size: [2, 20, 40],
-        rotation: [0, 0, 0],
-      },
-      {
-        position: [40, 3, -20],
-        size: [2, 10, 40],
-        rotation: [0, 0, 0],
-      },
-      {
-        position: [30, 3, 20],
-        size: [2, 10, 40],
-        rotation: [0, 0, 0],
-      },
-      {
-        position: [10, 3, 20],
-        size: [2, 40, 10],
-        rotation: [0, 0, 0],
-      },
-    ];
-
-    wallsArray.forEach(({ position, size, rotation }) => {
-      const wall = new THREE.Mesh(
-        new THREE.BoxGeometry(size[0], size[1], size[2]),
-        new THREE.MeshStandardMaterial({
-          color: 0xfffbc1,
-        })
-      );
-
-      wall.castShadow = true;
-      wall.receiveShadow = true;
-
-      wall.rotation.set(rotation[0], rotation[1], rotation[2]);
-      wall.position.set(position[0], position[1], position[2]);
-
-      this.scene.add(wall);
-
-      const wallBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-      wallBB.setFromObject(wall);
-
-      this.wallsBB.push(wallBB);
-    });
 
     this.mouse_control = new MouseControl();
 
@@ -205,9 +158,18 @@ class Game {
       getHit: undefined,
       hit: undefined,
       hitSecond: undefined,
+      roll: undefined,
     };
 
     const onLoad = (name: string, animation: THREE.Group) => {
+      if (name == "roll") {
+        const newAnimation = this.characterMixer.clipAction(
+          animation.animations[0]
+        );
+
+        characterAnimations[name as keyof typeof characterAnimations] =
+          newAnimation;
+      }
       console.log(
         `Loaded succesfully %c${name}`,
         "color: red; font-weight: bold"
@@ -246,6 +208,7 @@ class Game {
       { url: "/assets/Big Hit To Head.fbx", name: "getHit" },
       { url: "/assets/Punching.fbx", name: "hit" },
       { url: "/assets/Punching_s.fbx", name: "hitSecond" },
+      { url: "/assets/Stand To Roll.fbx", name: "roll" },
     ];
 
     const animationsModels = await Promise.all(

@@ -22,6 +22,28 @@ export default class BasicCharacterControllerInput {
     document.addEventListener("keyup", (e) => this.onKeyup(e), false);
     document.addEventListener("mousedown", (e) => this.onMouseDown(e), false);
     document.addEventListener("mouseup", (e) => this.onMouseUp(e), false);
+
+    document.addEventListener(
+      "pointerlockchange",
+      () => this.handleLockChange(),
+      false
+    );
+  }
+
+  handleLockChange() {
+    const canvas = document.querySelector("canvas");
+    if (document.pointerLockElement !== canvas) {
+      this.keys = {
+        forward: false,
+        backward: false,
+        left: false,
+        right: false,
+        space: false,
+        shift: false,
+        leftClick: false,
+        rightClick: false,
+      };
+    }
   }
 
   onMouseUp(e: MouseEvent) {

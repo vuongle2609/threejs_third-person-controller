@@ -9,6 +9,7 @@ export interface CharacterAnimationType {
   hit: THREE.AnimationAction | undefined;
   hitSecond: THREE.AnimationAction | undefined;
   getHit: THREE.AnimationAction | undefined;
+  roll: THREE.AnimationAction | undefined;
 }
 
 export interface PlayerInput {

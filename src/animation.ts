@@ -29,28 +29,43 @@ export default class Character_animation {
       transitions: [
         { name: "punch", from: "*", to: "hit" },
         { name: "punchSecond", from: "*", to: "hitSecond" },
+        { name: "roll", from: "*", to: "roll" },
         { name: "trans", from: "*", to: (s: string) => s },
       ],
       methods: {
         onPunch: () => this.handlePunch("hit"),
         onPunchSecond: () => this.handlePunch("hitSecond"),
         onTrans: () => this.handleTrans(),
+        onRoll: () => this.handleRoll(),
       },
       // @ts-ignore
       plugins: [new StateMachineHistory({ max: MAX_FSM_HISTORY })],
     });
 
     this.fsm.trans("idle");
+
+    document.addEventListener(
+      "pointerlockchange",
+      () => this.handleLockChange(),
+      false
+    );
+  }
+
+  handleLockChange() {
+    const canvas = document.querySelector("canvas");
+    if (document.pointerLockElement !== canvas) {
+      this.fsm.trans("idle");
+    }
   }
 
   handleAnimation() {
     const { keys } = this.input;
 
     if (this.preventAction) return;
-    console.log(this.attackStack);
     if (keys.leftClick || this.attackStack > 0) {
-      this.attackStack -= this.attackStack != 0 ? 1 : 0;
       this.handleLeftClick();
+    } else if (keys.space) {
+      this.fsm.trans("roll");
     } else if (keys.left) {
       this.fsm.trans("leftRun");
     } else if (keys.right) {
@@ -68,17 +83,41 @@ export default class Character_animation {
     const { stateKey } = this.getAction();
     this.attackStack += this.attackStack != 3 ? 1 : 0;
 
-    this.preventAction = true;
-
     if (stateKey == "hit") this.fsm.punchSecond();
     else this.fsm.punch();
 
     setTimeout(() => {
       this.attackStack -= this.attackStack != 0 ? 1 : 0;
-    }, 500);
+    }, 1000);
+  }
+
+  handleRoll() {
+    this.preventAction = true;
+    const { stateAction, prevStateAction } = this.getAction();
+
+    if (stateAction) {
+      const mixer = stateAction.getMixer();
+
+      stateAction.reset();
+      stateAction.clampWhenFinished = true;
+      stateAction.loop = THREE.LoopOnce;
+
+      stateAction.crossFadeFrom(prevStateAction as AnimationAction, 0.2, true);
+
+      const onComplete = () => {
+        this.preventAction = false;
+
+        mixer.removeEventListener("finished", onComplete);
+      };
+
+      mixer.addEventListener("finished", onComplete);
+
+      stateAction.play();
+    }
   }
 
   handlePunch(state: "hit" | "hitSecond") {
+    this.preventAction = true;
     const { stateAction, prevStateAction } = this.getAction(state);
 
     if (stateAction) {
@@ -93,6 +132,7 @@ export default class Character_animation {
       const onComplete = () => {
         this.preventAction = false;
 
+        this.attackStack -= this.attackStack != 0 ? 1 : 0;
         mixer.removeEventListener("finished", onComplete);
       };
 

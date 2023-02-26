@@ -29,10 +29,10 @@ export default class Camera_movement {
   private calculateIdealOffset() {
     const maxY = 30;
     const minY = 8;
-    const originY = maxY - minY;
+    const originY = minY - maxY;
     const newY = originY * this.mouse_control.mousePercentScreenY;
 
-    const idealOffset = new THREE.Vector3(0, maxY - newY, -30);
+    const idealOffset = new THREE.Vector3(0, minY - newY, -30);
     idealOffset.applyQuaternion(
       new Quaternion().setFromEuler(this.character.rotation.clone())
     );
@@ -42,11 +42,11 @@ export default class Camera_movement {
 
   private calculateIdealLookat() {
     const maxY = 34;
-    const minY = 10;
-    const originY = maxY - minY;
+    const minY = 6;
+    const originY = minY - maxY;
     const newY = originY * this.mouse_control.mousePercentScreenY;
 
-    const idealLookat = new THREE.Vector3(0, 0, minY + newY);
+    const idealLookat = new THREE.Vector3(0, 0, maxY + newY);
     idealLookat.applyQuaternion(
       new Quaternion().setFromEuler(this.character.rotation.clone())
     );
