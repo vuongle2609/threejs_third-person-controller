@@ -162,6 +162,11 @@ class Game {
     };
 
     const onLoad = (name: string, animation: THREE.Group) => {
+      // console.log(
+      //   `Loaded succesfully %c${name}`,
+      //   "color: red; font-weight: bold"
+      // );
+
       if (name == "roll") {
         const newAnimation = this.characterMixer.clipAction(
           animation.animations[0]
@@ -170,10 +175,6 @@ class Game {
         characterAnimations[name as keyof typeof characterAnimations] =
           newAnimation;
       }
-      console.log(
-        `Loaded succesfully %c${name}`,
-        "color: red; font-weight: bold"
-      );
 
       // use for remove change character position behavior
       const animationClip = animation.animations[0];

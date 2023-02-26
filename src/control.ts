@@ -55,11 +55,12 @@ export default class Character_control {
       0,
       0,
       (this.input.keys.forward || this.isRoll ? 1 : 0) -
-        (this.input.keys.backward ? 1 : 0)
+        (this.input.keys.backward && !this.isRoll ? 1 : 0)
     );
 
     const sideVector = new Vector3(
-      (this.input.keys.left ? 1 : 0) - (this.input.keys.right ? 1 : 0),
+      (this.input.keys.left && !this.isRoll ? 1 : 0) -
+        (this.input.keys.right && !this.isRoll ? 1 : 0),
       0,
       0
     );

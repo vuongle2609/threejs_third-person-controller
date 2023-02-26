@@ -54,7 +54,7 @@ export default class Character_animation {
   handleLockChange() {
     const canvas = document.querySelector("canvas");
     if (document.pointerLockElement !== canvas) {
-      this.fsm.trans("idle");
+      // this.fsm.trans("idle");
     }
   }
 
@@ -99,10 +99,11 @@ export default class Character_animation {
       const mixer = stateAction.getMixer();
 
       stateAction.reset();
+      stateAction.enabled = true;
       stateAction.clampWhenFinished = true;
       stateAction.loop = THREE.LoopOnce;
 
-      stateAction.crossFadeFrom(prevStateAction as AnimationAction, 0.2, true);
+      stateAction.crossFadeFrom(prevStateAction as AnimationAction, 0.1, true);
 
       const onComplete = () => {
         this.preventAction = false;
