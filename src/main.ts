@@ -13,6 +13,7 @@ import Character_animation from "./animation";
 import { GUI } from "dat.gui";
 import { Vector2 } from "three";
 import MouseControl from "./mouseMove";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 class Game {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -39,7 +40,8 @@ class Game {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.toneMapping = THREE.ReinhardToneMapping;
-    this.renderer.toneMappingExposure = 2.3;
+    this.renderer.toneMappingExposure = 2;
+    // this.renderer.outputEncoding = THREE.sRGBEncoding;
 
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener(
@@ -127,6 +129,23 @@ class Game {
     };
 
     const fbxLoader = new FBXLoader(manager);
+
+    const glbLoader = new GLTFLoader();
+    const robot = await glbLoader.loadAsync(
+      "/assets/raid_boss_shogun/scene.gltf"
+    );
+
+    robot.scene.scale.set(3, 3, 3);
+    robot.scene.position.add(new THREE.Vector3(0, 0, 40));
+
+    robot.scene.rotation.set(0, 3.5, 0);
+
+    robot.scene.traverse((item) => {
+      item.receiveShadow = true;
+      item.castShadow = true;
+    });
+
+    this.scene.add(robot.scene);
 
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
     console.log(
