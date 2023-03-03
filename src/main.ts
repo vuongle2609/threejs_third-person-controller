@@ -11,7 +11,7 @@ import Light from "./light";
 import BasicCharacterControllerInput from "./input";
 import Character_animation from "./animation";
 import { GUI } from "dat.gui";
-import { Vector2 } from "three";
+import { Vector2, Vector3 } from "three";
 import MouseControl from "./mouseMove";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 class Game {
@@ -30,6 +30,10 @@ class Game {
   characterMixer: THREE.AnimationMixer;
   character_animation: Character_animation;
   mouse_control: MouseControl;
+  characterRotateBox: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.Material | THREE.Material[]
+  >;
 
   constructor() {
     this.initialize();
@@ -130,28 +134,38 @@ class Game {
 
     const fbxLoader = new FBXLoader(manager);
 
-    const glbLoader = new GLTFLoader();
-    const robot = await glbLoader.loadAsync(
-      "/assets/raid_boss_shogun/scene.gltf"
-    );
+    // const glbLoader = new GLTFLoader();
+    // const robot = await glbLoader.loadAsync(
+    //   "/assets/raid_boss_shogun/scene.gltf"
+    // );
 
-    robot.scene.scale.set(3, 3, 3);
-    robot.scene.position.add(new THREE.Vector3(0, 0, 40));
+    // robot.scene.scale.set(3, 3, 3);
+    // robot.scene.position.add(new THREE.Vector3(0, 0, 40));
 
-    robot.scene.rotation.set(0, 3.5, 0);
+    // robot.scene.rotation.set(0, 3.5, 0);
 
-    robot.scene.traverse((item) => {
-      item.receiveShadow = true;
-      item.castShadow = true;
-    });
+    // robot.scene.traverse((item) => {
+    //   item.receiveShadow = true;
+    //   item.castShadow = true;
+    // });
 
-    this.scene.add(robot.scene);
+    // this.scene.add(robot.scene);
 
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
     console.log(
       "Loaded succesfully %ccharacter",
       "color: red; font-weight: bold"
     );
+
+    this.characterRotateBox = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({
+        color: new THREE.Color(0xffff00),
+        wireframe: true,
+      })
+    );
+
+    this.scene.add(this.characterRotateBox);
 
     this.character = character;
 
@@ -247,6 +261,7 @@ class Game {
       character: this.character,
       camera: this.camera,
       mouse: this.mouse_control,
+      characterRotateBox: this.characterRotateBox,
     });
 
     this.character_animation = new Character_animation({
@@ -259,6 +274,7 @@ class Game {
       input,
       mouse: this.mouse_control,
       animation: this.character_animation,
+      characterRotateBox: this.characterRotateBox,
     });
   }
 
@@ -274,6 +290,10 @@ class Game {
     });
 
     const deltaT = this.clock.getDelta();
+
+    if (this.character) {
+      this.characterRotateBox.position.copy(this.character.position);
+    }
 
     if (!this.mouse_control.paused) {
       this.character_control?.update(deltaT);

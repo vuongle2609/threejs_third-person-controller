@@ -67,13 +67,16 @@ export default class Character_animation {
     } else if (keys.space) {
       this.fsm.trans("roll");
     } else if (keys.left) {
-      this.fsm.trans("leftRun");
+      // this.fsm.trans("leftRun");
+      this.fsm.trans("running");
     } else if (keys.right) {
-      this.fsm.trans("rightRun");
+      // this.fsm.trans("rightRun");
+      this.fsm.trans("running");
     } else if (keys.forward) {
       this.fsm.trans("running");
     } else if (keys.backward) {
-      this.fsm.trans("runningBack");
+      // this.fsm.trans("runningBack");
+      this.fsm.trans("running");
     } else {
       this.fsm.trans("idle");
     }

@@ -14,6 +14,7 @@ import MouseControl from "./mouseMove";
 
 interface PropsType {
   character: THREE.Object3D;
+  characterRotateBox: THREE.Object3D;
   input: BasicCharacterControllerInput;
   mouse: MouseControl;
   animation: Character_animation;
@@ -31,10 +32,18 @@ export default class Character_control {
   scene: THREE.Scene;
   mouse_control: MouseControl;
   animation: Character_animation;
+  characterRotateBox: THREE.Object3D<THREE.Event>;
 
-  constructor({ character, input, mouse, animation }: PropsType) {
+  constructor({
+    character,
+    input,
+    mouse,
+    animation,
+    characterRotateBox,
+  }: PropsType) {
     this.input = input;
     this.character = character;
+    this.characterRotateBox = characterRotateBox;
     this.mouse_control = mouse;
     this.animation = animation;
 
@@ -42,12 +51,6 @@ export default class Character_control {
   }
 
   updateNewPosition(deltaT: number) {
-    this.character.rotation.set(
-      0,
-      6.2832 * -this.mouse_control.mousePercentScreenX,
-      0
-    );
-
     // vector chi huong di chuyen
     const direction = new Vector3().copy(this.currentPosition);
 
@@ -69,35 +72,62 @@ export default class Character_control {
 
     this.currentPosition.copy(this.character.position);
 
+    // vector di chuyen theo huong camera
     const forwardVector = new Vector3();
-    this.character.getWorldDirection(forwardVector);
+    this.characterRotateBox.getWorldDirection(forwardVector);
 
     forwardVector.y = 0;
     forwardVector.normalize();
 
     const vectorUp = new Vector3(0, 1, 0);
 
-    const vectorRight = vectorUp.crossVectors(vectorUp, forwardVector);
+    const vectorRight = vectorUp.clone().crossVectors(vectorUp, forwardVector);
 
     const moveVector = new Vector3().addVectors(
-      forwardVector.multiplyScalar(frontVector.z),
+      forwardVector.clone().multiplyScalar(frontVector.z),
       vectorRight.multiplyScalar(sideVector.x)
     );
 
     moveVector.normalize().multiplyScalar(SPEED * deltaT);
 
+    // rotate character voi cac huong cua phim
+    this.characterRotateBox.rotation.set(
+      0,
+      6.2832 * -this.mouse_control.mousePercentScreenX,
+      0
+    );
+
+    const isMove = !!moveVector.x || !!moveVector.z;
+    const vectorRotateTarget = moveVector.clone().normalize();
+    const characterForwardVector = new Vector3();
+    this.character.getWorldDirection(characterForwardVector);
+
+    const angle = 0.18;
+
+    if (vectorRotateTarget.angleTo(characterForwardVector) > 0.1 && isMove) {
+      const quaternion = new THREE.Quaternion().setFromAxisAngle(
+        vectorUp,
+        angle
+      );
+      this.character.quaternion.multiplyQuaternions(
+        this.character.quaternion,
+        quaternion
+      );
+    }
+
+    // xu ly chan di chuyen khi dang roll
     if (this.animation.fsm.state != "roll") {
       this.isRoll = false;
-      this.airDirection = null;
     }
 
     if (this.animation.fsm.state == "roll" && !this.isRoll) {
       this.isRoll = true;
-      this.airDirection = new Vector3(moveVector.x, 0, moveVector.z);
     }
 
+
     if (this.isRoll) {
-      this.character.position.add(new Vector3(moveVector.x, 0, moveVector.z));
+      const newCharacterRollMove = characterForwardVector.normalize() 
+      this.character.position.add(new Vector3(newCharacterRollMove.x, 0, newCharacterRollMove.z));
     }
 
     if (!this.animation.preventAction)

@@ -5,6 +5,7 @@ import MouseControl from "./mouseMove";
 
 interface PropsType {
   character: THREE.Object3D;
+  characterRotateBox: THREE.Object3D;
   camera: THREE.PerspectiveCamera;
   mouse: MouseControl;
 }
@@ -16,9 +17,11 @@ export default class Camera_movement {
   currentLookat: THREE.Vector3;
   mouse_control: MouseControl;
   test = 16;
+  characterRotateBox: THREE.Object3D<THREE.Event>;
 
-  constructor({ character, camera, mouse }: PropsType) {
+  constructor({ character, camera, mouse, characterRotateBox }: PropsType) {
     this.character = character;
+    this.characterRotateBox = characterRotateBox;
     this.camera = camera;
     this.mouse_control = mouse;
 
@@ -34,7 +37,7 @@ export default class Camera_movement {
 
     const idealOffset = new THREE.Vector3(0, minY - newY, -30);
     idealOffset.applyQuaternion(
-      new Quaternion().setFromEuler(this.character.rotation.clone())
+      new Quaternion().setFromEuler(this.characterRotateBox.rotation.clone())
     );
     idealOffset.add(this.character.position.clone());
     return idealOffset;
@@ -48,7 +51,7 @@ export default class Camera_movement {
 
     const idealLookat = new THREE.Vector3(0, 0, maxY + newY);
     idealLookat.applyQuaternion(
-      new Quaternion().setFromEuler(this.character.rotation.clone())
+      new Quaternion().setFromEuler(this.characterRotateBox.rotation.clone())
     );
     idealLookat.add(this.character.position.clone());
     return idealLookat;
