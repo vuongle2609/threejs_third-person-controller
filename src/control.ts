@@ -96,12 +96,13 @@ export default class Character_control {
     const characterForwardVector = new Vector3();
     this.character.getWorldDirection(characterForwardVector);
 
+    // chi rotate nhan vat khi dang chay hoac dung yen
     if (
       moveVector.angleTo(characterForwardVector) > 0.1 &&
       isMove &&
-      this.animation.fsm.state != "roll"
+      (this.animation.fsm.state == "idle" ||
+        this.animation.fsm.state == "running")
     ) {
-
       // quyet dinh xem nhan vat nen xoay theo huong trai hay phai tuy theo
       // do lon va huong giua hai vector, bang cach thay doi angle thanh so am hoac duong
       if (this.characterRotateAngle.allowSet) {
