@@ -128,9 +128,9 @@ class Game {
   async loadModels() {
     const manager = new THREE.LoadingManager();
 
-    manager.onProgress = function (item, loaded, total) {
-      console.log("Loaded:", Math.round((loaded / total) * 100) + "%");
-    };
+    // manager.onProgress = function (item, loaded, total) {
+    //   console.log("Loaded:", Math.round((loaded / total) * 100) + "%");
+    // };
 
     const fbxLoader = new FBXLoader(manager);
 
@@ -152,20 +152,12 @@ class Game {
     // this.scene.add(robot.scene);
 
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
-    console.log(
-      "Loaded succesfully %ccharacter",
-      "color: red; font-weight: bold"
-    );
+    // console.log(
+    //   "Loaded succesfully %ccharacter",
+    //   "color: red; font-weight: bold"
+    // );
 
-    this.characterRotateBox = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshBasicMaterial({
-        color: new THREE.Color(0xffff00),
-        wireframe: true,
-      })
-    );
-
-    this.scene.add(this.characterRotateBox);
+    this.characterRotateBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
 
     this.character = character;
 

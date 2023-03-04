@@ -2,13 +2,7 @@ import * as THREE from "three";
 import { Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Character_animation from "./animation";
-import {
-  GRAVITY,
-  JUMP_FORCE,
-  ROLL_DOWN_FORCE,
-  ROLL_UP_FORCE,
-  SPEED,
-} from "./configs/constants";
+import { SPEED } from "./configs/constants";
 import BasicCharacterControllerInput from "./input";
 import MouseControl from "./mouseMove";
 
@@ -27,12 +21,13 @@ export default class Character_control {
   currentPosition: Vector3;
   camera: THREE.PerspectiveCamera;
   isRoll: boolean;
-  velocityY: number = 0;
-  airDirection: Vector3 | null;
-  scene: THREE.Scene;
   mouse_control: MouseControl;
   animation: Character_animation;
   characterRotateBox: THREE.Object3D<THREE.Event>;
+  characterRotateAngle = {
+    allowSet: true,
+    angle: 1,
+  };
 
   constructor({
     character,
@@ -98,13 +93,26 @@ export default class Character_control {
     );
 
     const isMove = !!moveVector.x || !!moveVector.z;
-    const vectorRotateTarget = moveVector.clone().normalize();
     const characterForwardVector = new Vector3();
     this.character.getWorldDirection(characterForwardVector);
 
-    const angle = 0.18;
+    if (
+      moveVector.angleTo(characterForwardVector) > 0.1 &&
+      isMove &&
+      this.animation.fsm.state != "roll"
+    ) {
 
-    if (vectorRotateTarget.angleTo(characterForwardVector) > 0.1 && isMove) {
+      // quyet dinh xem nhan vat nen xoay theo huong trai hay phai tuy theo
+      // do lon va huong giua hai vector, bang cach thay doi angle thanh so am hoac duong
+      if (this.characterRotateAngle.allowSet) {
+        this.characterRotateAngle.allowSet = false;
+        const axis = new Vector3();
+        axis.crossVectors(moveVector, characterForwardVector).normalize();
+
+        this.characterRotateAngle.angle = axis.y < 0 ? 1 : -1;
+      }
+
+      const angle = 0.19 * this.characterRotateAngle.angle;
       const quaternion = new THREE.Quaternion().setFromAxisAngle(
         vectorUp,
         angle
@@ -113,6 +121,8 @@ export default class Character_control {
         this.character.quaternion,
         quaternion
       );
+    } else {
+      this.characterRotateAngle.allowSet = true;
     }
 
     // xu ly chan di chuyen khi dang roll
@@ -124,10 +134,13 @@ export default class Character_control {
       this.isRoll = true;
     }
 
-
     if (this.isRoll) {
-      const newCharacterRollMove = characterForwardVector.normalize() 
-      this.character.position.add(new Vector3(newCharacterRollMove.x, 0, newCharacterRollMove.z));
+      const newCharacterRollMove = characterForwardVector
+        .normalize()
+        .multiplyScalar(SPEED * deltaT);
+      this.character.position.add(
+        new Vector3(newCharacterRollMove.x, 0, newCharacterRollMove.z)
+      );
     }
 
     if (!this.animation.preventAction)
