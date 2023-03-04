@@ -2,10 +2,10 @@ import * as THREE from "three";
 import { Vector2 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
-import Character from "./character";
+import Character from "./Character/character";
 import { ASPECT, FAR, FOV, NEAR } from "./configs/constants";
 import Light from "./light";
-import Player from "./player";
+import Player from "./Player/player";
 
 class Game {
   renderer: THREE.WebGLRenderer;

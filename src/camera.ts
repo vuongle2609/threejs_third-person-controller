@@ -1,7 +1,7 @@
 import { GUI } from "dat.gui";
 import * as THREE from "three";
 import { Quaternion } from "three";
-import MouseControl from "./mouseMove";
+import MouseControl from "./Action/mouseMove";
 
 interface PropsType {
   character: THREE.Object3D;

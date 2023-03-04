@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import Character_animation from "./animation";
-import Camera_movement from "./camera.js";
-import Character_control from "./control";
-import BasicCharacterControllerInput from "./input";
-import MouseControl from "./mouseMove";
-import { CharacterAnimationType } from "./type";
+import Character_animation from "../Player/animation";
+import Camera_movement from "../camera.js";
+import Character_control from "../Player/control";
+import BasicCharacterControllerInput from "../Action/input";
+import MouseControl from "../Action/mouseMove";
+import { CharacterAnimationType } from "../type";
 
 interface PropsType {
   scene: THREE.Scene;

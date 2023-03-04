@@ -2,8 +2,8 @@ import StateMachine from "javascript-state-machine";
 import StateMachineHistory from "javascript-state-machine/lib/history";
 import * as THREE from "three";
 import { AnimationAction } from "three";
-import BasicCharacterControllerInput from "./input";
-import { CharacterAnimationType } from "./type";
+import BasicCharacterControllerInput from "../Action/input";
+import { CharacterAnimationType } from "../type";
 
 interface PropsType {
   animations: CharacterAnimationType;
@@ -61,8 +61,6 @@ export default class Character_animation {
   handleAnimation() {
     const { keys } = this.input;
 
-    // bo het cac kieu chay sang trai phai lui,
-    // gio se chay theo huong camera
     if (this.preventAction) return;
     if (keys.leftClick || this.attackStack > 0) {
       this.handleLeftClick();

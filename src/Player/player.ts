@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import Character_animation from "./animation";
-import Camera_movement from "./camera.js";
+import Camera_movement from "../camera.js";
 import Character_control from "./control";
-import BasicCharacterControllerInput from "./input";
-import MouseControl from "./mouseMove";
-import { CharacterAnimationType } from "./type";
+import BasicCharacterControllerInput from "../Action/input";
+import MouseControl from "../Action/mouseMove";
+import { CharacterAnimationType } from "../type";
 
 interface PropsType {
   scene: THREE.Scene;
@@ -157,7 +157,7 @@ export default class Player {
     this.scene.add(this.character);
 
     const input = new BasicCharacterControllerInput();
-
+    
     this.camera_movement = new Camera_movement({
       character: this.character,
       camera: this.camera,

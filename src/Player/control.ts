@@ -2,9 +2,9 @@ import * as THREE from "three";
 import { Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Character_animation from "./animation";
-import { SPEED } from "./configs/constants";
-import BasicCharacterControllerInput from "./input";
-import MouseControl from "./mouseMove";
+import { SPEED } from "../configs/constants";
+import BasicCharacterControllerInput from "../Action/input";
+import MouseControl from "../Action/mouseMove";
 
 interface PropsType {
   character: THREE.Object3D;
