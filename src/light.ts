@@ -11,6 +11,7 @@ export default class Light {
   initial() {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 
+    directionalLight.intensity = 2
     directionalLight.position.set(100, 200, 100);
     directionalLight.target.position.set(0, 0, 0);
     directionalLight.castShadow = true;

@@ -61,6 +61,8 @@ export default class Character_animation {
   handleAnimation() {
     const { keys } = this.input;
 
+    // bo het cac kieu chay sang trai phai lui,
+    // gio se chay theo huong camera
     if (this.preventAction) return;
     if (keys.leftClick || this.attackStack > 0) {
       this.handleLeftClick();
