@@ -12,6 +12,7 @@ import { findNearestPosition, getKeyPoint, isEqualPosition } from "../utils";
 import verticesFormat from "../configs/navMesh";
 import { findPath } from "../utils/pathfind";
 import { Vector3 } from "three";
+import { SPEED } from "../configs/constants";
 
 interface PropsType {
   scene: THREE.Scene;
@@ -159,8 +160,7 @@ export default class Character {
     // });
   }
 
-  moveCharacter() {
-    console.log(this.currentMoveTo);
+  moveCharacter(deltaT: number) {
     //lmao wtf =))
     if (this.currentMoveTo) return;
 
@@ -170,19 +170,28 @@ export default class Character {
 
     const moveToVector = new Vector3(
       this.currentMoveTo[0],
-      0,
+      this.character.position.y,
       this.currentMoveTo[1]
     );
 
     const RAF_move = () => {
+      if (this.character.position.distanceTo(moveToVector) <= 0.1) {
+        this.currentMoveTo = null;
+        return;
+      }
+
       requestAnimationFrame((t) => {
-        if (this.character.position.distanceTo(moveToVector) > 0.2) RAF_move();
-        else this.currentMoveTo = null;
+        RAF_move();
       });
-      this.character.position.lerp(moveToVector, 0.045);
+
+      this.character.position.lerp(moveToVector, 0.054);
+
+      // this.character.position.add(
+      //   moveToVector.normalize().multiplyScalar(SPEED * deltaT)
+      // );
     };
 
-    RAF_move()
+    RAF_move();
   }
 
   chasePlayer(player: Player) {
@@ -194,7 +203,7 @@ export default class Character {
         this.character.position.z,
       ]);
 
-      this.character.lookAt(player.character.position)
+      this.character.lookAt(player.character.position);
 
       if (
         !(
@@ -220,7 +229,7 @@ export default class Character {
     const { entities } = customProps;
 
     this.chasePlayer(entities[0]);
-    this.moveCharacter();
+    this.moveCharacter(deltaT);
 
     this.characterMixer?.update(deltaT);
   }
