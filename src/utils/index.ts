@@ -1,30 +1,36 @@
-import * as THREE from "three";
+import { CoordinateType, VerticesType } from "./../type";
 
-export const isPositionEquals = (
-  object1: any,
-  object2: any,
-  inclusive?: {
-    x: boolean;
-    y: boolean;
-    z: boolean;
-  },
-  log?: boolean
+const max = Math.max;
+const abs = Math.abs;
+
+// manhatan distance
+export const findDistance = (pos1: CoordinateType, pos2: CoordinateType) => {
+  return max(abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]));
+};
+
+export const isEqualPosition = (pos1: CoordinateType, pos2: CoordinateType) => {
+  return pos1?.[0] == pos2?.[0] && pos1?.[1] == pos2?.[1];
+};
+
+export const getKeyPoint = (pos: CoordinateType) => `${pos?.[0]}/${pos?.[1]}`;
+
+export const findNearestPosition = (
+  vertices: VerticesType,
+  curentPosition: CoordinateType
 ) => {
-  const { x, y, z } = inclusive || { x: true, y: true, z: true };
-  let equals = false;
+  let nearest: CoordinateType | null = null;
+  let nearestDistance: number | null = null;
 
-  if (log) {
-    console.log("object 1", object1);
-    console.log("object 2", object2);
-  }
+  Object.values(vertices).forEach((item) => {
+    const distanceTo = max(
+      abs(curentPosition[0] - item.points[0]) +
+        abs(curentPosition[1] - item.points[1])
+    );
+    if (!nearest || distanceTo <= (nearestDistance as number)) {
+      nearest = item.points;
+      nearestDistance = distanceTo;
+    }
+  });
 
-  if (
-    (x ? Math.round(object1?.x) === Math.round(object2?.x) : true) &&
-    (y ? Math.round(object1?.y) === Math.round(object2?.y) : true) &&
-    (z ? Math.round(object1?.z) === Math.round(object2?.z) : true)
-  ) {
-    equals = true;
-  }
-
-  return equals;
+  return nearest as unknown as CoordinateType;
 };

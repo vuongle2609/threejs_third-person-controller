@@ -1,3 +1,4 @@
+import { CoordinateType } from "./../type";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import Character_animation from "../Player/animation";
@@ -6,6 +7,11 @@ import Character_control from "../Player/control";
 import BasicCharacterControllerInput from "../Action/input";
 import MouseControl from "../Action/mouseMove";
 import { CharacterAnimationType } from "../type";
+import Player from "../Player/player";
+import { findNearestPosition, getKeyPoint, isEqualPosition } from "../utils";
+import verticesFormat from "../configs/navMesh";
+import { findPath } from "../utils/pathfind";
+import { Vector3 } from "three";
 
 interface PropsType {
   scene: THREE.Scene;
@@ -15,6 +21,12 @@ export default class Character {
   scene: THREE.Scene;
   character: THREE.Group;
   characterMixer: THREE.AnimationMixer;
+  prevMovePointCharacter: CoordinateType;
+  prevMovePointPlayer: CoordinateType;
+
+  currentMoveTo: CoordinateType | null = null;
+  arrayMove: CoordinateType[] = [];
+
   constructor({ scene }: PropsType) {
     this.scene = scene;
 
@@ -140,14 +152,76 @@ export default class Character {
     });
 
     this.scene.add(this.character);
-    
+
     // this.character_animation = new Character_animation({
     //   animations: characterAnimations,
     //   input,
     // });
   }
 
-  update(deltaT: number) {
+  moveCharacter() {
+    console.log(this.currentMoveTo);
+    //lmao wtf =))
+    if (this.currentMoveTo) return;
+
+    this.currentMoveTo = this.arrayMove.pop() || null;
+
+    if (!this.currentMoveTo) return;
+
+    const moveToVector = new Vector3(
+      this.currentMoveTo[0],
+      0,
+      this.currentMoveTo[1]
+    );
+
+    const RAF_move = () => {
+      requestAnimationFrame((t) => {
+        if (this.character.position.distanceTo(moveToVector) > 0.2) RAF_move();
+        else this.currentMoveTo = null;
+      });
+      this.character.position.lerp(moveToVector, 0.045);
+    };
+
+    RAF_move()
+  }
+
+  chasePlayer(player: Player) {
+    try {
+      const { x, z } = player.character.position;
+      const nearestPlayer = findNearestPosition(verticesFormat, [x, z]);
+      const nearestMob = findNearestPosition(verticesFormat, [
+        this.character.position.x,
+        this.character.position.z,
+      ]);
+
+      this.character.lookAt(player.character.position)
+
+      if (
+        !(
+          isEqualPosition(nearestPlayer, this.prevMovePointPlayer) &&
+          isEqualPosition(nearestPlayer, this.prevMovePointPlayer)
+        )
+      ) {
+        this.prevMovePointCharacter = nearestMob;
+        this.prevMovePointPlayer = nearestPlayer;
+
+        this.arrayMove =
+          findPath({
+            start: verticesFormat[getKeyPoint(nearestMob)],
+            target: verticesFormat[getKeyPoint(nearestPlayer)],
+          }) || [];
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  update(deltaT: number, customProps?: any) {
+    const { entities } = customProps;
+
+    this.chasePlayer(entities[0]);
+    this.moveCharacter();
+
     this.characterMixer?.update(deltaT);
   }
 }

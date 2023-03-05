@@ -157,7 +157,7 @@ export default class Player {
     this.scene.add(this.character);
 
     const input = new BasicCharacterControllerInput();
-    
+
     this.camera_movement = new Camera_movement({
       character: this.character,
       camera: this.camera,
@@ -179,7 +179,7 @@ export default class Player {
     });
   }
 
-  update(deltaT: number) {
+  update(deltaT: number, customProps?: any) {
     if (this.character) {
       this.characterRotateBox.position.copy(this.character.position);
     }

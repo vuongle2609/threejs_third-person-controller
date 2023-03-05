@@ -22,3 +22,26 @@ export interface PlayerInput {
   leftClick: boolean;
   rightClick: boolean;
 }
+
+export type CoordinateType = number[];
+
+export interface VerticesType {
+  [key: string]: PointsType;
+}
+
+export interface PointsType {
+  points: CoordinateType;
+  neighBors: CoordinateType[];
+}
+
+export interface PointsFormatObj<T> extends PointsType {
+  g: null | number;
+  f: null | number;
+  prev: T | null;
+}
+export interface PointsFormatObjRecusive
+  extends PointsFormatObj<PointsFormatObjRecusive> {}
+
+export interface PointsFormatType {
+  [key: string]: PointsFormatObjRecusive;
+}
