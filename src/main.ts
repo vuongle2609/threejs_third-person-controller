@@ -67,6 +67,47 @@ class Game {
     // fps show
     document.body.appendChild(this.stats.dom);
 
+    // test path
+    const cube = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color("#f0f0f0") })
+    );
+
+    const vertices: {
+      [key: string]: {
+        position: number[];
+        neighBors: number[][];
+      };
+    } = {};
+
+    const getKeyPoint = (pos: number[]) => `${pos?.[0]}/${pos?.[1]}`;
+
+    const findNeighbors = (pos: number[]): number[][] => {
+      const [x, y] = pos;
+
+      const top = [x, y - 1];
+
+      const left = [x - 1, y];
+
+      const right = [x + 1, y];
+
+      const bot = [x, y + 1];
+
+      return [top, left, right, bot];
+    };
+
+    for (let i = -60; i <= 60; i += 4) {
+      for (let j = -60; j <= 60; j += 4) {
+        vertices[getKeyPoint([i, j])] = {
+          position: [i, j],
+          neighBors: findNeighbors([i, j]),
+        };
+      }
+    }
+    console.log(vertices);
+
+    //end test
+
     this.entitiesCharacter.push(
       new Player({
         camera: this.camera,
