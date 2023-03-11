@@ -154,6 +154,54 @@ export default class Character {
 
     this.scene.add(this.character);
 
+    const path = [
+      new THREE.Vector3(-5, 0, 0),
+      new THREE.Vector3(0, 0, 5),
+      new THREE.Vector3(5, 0, 0),
+      new THREE.Vector3(0, 0, -5),
+      new THREE.Vector3(-5, 0, 0),
+    ];
+    
+    // Calculate the total length of the path
+    let totalLength = 0;
+    for (let i = 1; i < path.length; i++) {
+      totalLength += path[i].distanceTo(path[i - 1]);
+    }
+    
+    // Define the speed
+    const speed = 5; // units per second
+    
+    // Calculate the time required to complete the path
+    const time = totalLength / speed;
+    
+    // Set up a timer to move the object along the path
+    let elapsedTime = 0;
+    const timer = setInterval(() => {
+      // Calculate the position of the object along the path
+      const distance = speed * elapsedTime;
+      let currentLength = 0;
+      let index = 0;
+      while (index < path.length - 1 && currentLength + path[index + 1].distanceTo(path[index]) < distance) {
+        currentLength += path[index + 1].distanceTo(path[index]);
+        index++;
+      }
+      const start = path[index];
+      const end = path[index + 1];
+      const ratio = (distance - currentLength) / end.distanceTo(start);
+      const position = start.clone().lerp(end, ratio);
+    
+      // Update the position of the object
+      this.character.position.copy(position);
+    
+      // Update the elapsed time
+      elapsedTime += 0.01; // 10 milliseconds
+    
+      // Stop the timer if the object has reached the end of the path
+      if (elapsedTime >= time) {
+        clearInterval(timer);
+      }
+    }, 10); // 10 milliseconds
+
     // this.character_animation = new Character_animation({
     //   animations: characterAnimations,
     //   input,
@@ -228,8 +276,8 @@ export default class Character {
   update(deltaT: number, customProps?: any) {
     const { entities } = customProps;
 
-    this.chasePlayer(entities[0]);
-    this.moveCharacter(deltaT);
+    // this.chasePlayer(entities[0]);
+    // this.moveCharacter(deltaT);
 
     this.characterMixer?.update(deltaT);
   }
