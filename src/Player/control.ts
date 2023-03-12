@@ -14,6 +14,7 @@ interface PropsType {
   animation: Character_animation;
 }
 
+// code như con cặc
 export default class Character_control {
   input: BasicCharacterControllerInput;
   character: THREE.Object3D;
@@ -85,10 +86,13 @@ export default class Character_control {
 
     moveVector.normalize().multiplyScalar(SPEED * deltaT);
 
+    // giá trị một vòng của euler
+    const FULL_EULER = 6.2832;
+
     // rotate character voi cac huong cua phim
     this.characterRotateBox.rotation.set(
       0,
-      6.2832 * -this.mouse_control.mousePercentScreenX,
+      FULL_EULER * -this.mouse_control.mousePercentScreenX,
       0
     );
 
@@ -96,9 +100,12 @@ export default class Character_control {
     const characterForwardVector = new Vector3();
     this.character.getWorldDirection(characterForwardVector);
 
+    // sai số khi rotate của nhân vật
+    const ERROR_ROTATE = 0.1;
+
     // chi rotate nhan vat khi dang chay hoac dung yen
     if (
-      moveVector.angleTo(characterForwardVector) > 0.1 &&
+      moveVector.angleTo(characterForwardVector) > ERROR_ROTATE &&
       isMove &&
       (this.animation.fsm.state == "idle" ||
         this.animation.fsm.state == "running")
@@ -113,7 +120,12 @@ export default class Character_control {
         this.characterRotateAngle.angle = axis.y < 0 ? 1 : -1;
       }
 
-      const angle = 0.19 * this.characterRotateAngle.angle;
+      // constant cang lon thi rotate cang nhanh nhung
+      // lam do chinh xac khi rotate giam, lam cho nhan
+      // vat rotate nhieu vong
+      const ROTATE_CONSTANT = 0.19;
+
+      const angle = ROTATE_CONSTANT * this.characterRotateAngle.angle;
       const quaternion = new THREE.Quaternion().setFromAxisAngle(
         vectorUp,
         angle
@@ -149,10 +161,6 @@ export default class Character_control {
   }
 
   update(deltaT: number) {
-    if (deltaT > 0.15) {
-      deltaT = 0.15;
-    }
-
     this.updateNewPosition(deltaT);
   }
 }

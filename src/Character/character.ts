@@ -26,6 +26,7 @@ export default class Character {
   prevMovePointPlayer: CoordinateType;
 
   currentMoveTo: CoordinateType | null = null;
+  currentStartMove: CoordinateType | null = null;
   arrayMove: CoordinateType[] = [];
 
   constructor({ scene }: PropsType) {
@@ -37,34 +38,9 @@ export default class Character {
   async initialize() {
     const manager = new THREE.LoadingManager();
 
-    // manager.onProgress = function (item, loaded, total) {
-    //   console.log("Loaded:", Math.round((loaded / total) * 100) + "%");
-    // };
-
     const fbxLoader = new FBXLoader(manager);
 
-    // const glbLoader = new GLTFLoader();
-    // const robot = await glbLoader.loadAsync(
-    //   "/assets/raid_boss_shogun/scene.gltf"
-    // );
-
-    // robot.scene.scale.set(3, 3, 3);
-    // robot.scene.position.add(new THREE.Vector3(0, 0, 40));
-
-    // robot.scene.rotation.set(0, 3.5, 0);
-
-    // robot.scene.traverse((item) => {
-    //   item.receiveShadow = true;
-    //   item.castShadow = true;
-    // });
-
-    // this.scene.add(robot.scene);
-
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
-    // console.log(
-    //   "Loaded succesfully %ccharacter",
-    //   "color: red; font-weight: bold"
-    // );
 
     this.character = character;
 
@@ -94,11 +70,6 @@ export default class Character {
     };
 
     const onLoad = (name: string, animation: THREE.Group) => {
-      // console.log(
-      //   `Loaded succesfully %c${name}`,
-      //   "color: red; font-weight: bold"
-      // );
-
       if (name == "roll") {
         const newAnimation = this.characterMixer.clipAction(
           animation.animations[0]
@@ -154,61 +125,13 @@ export default class Character {
 
     this.scene.add(this.character);
 
-    const path = [
-      new THREE.Vector3(-5, 0, 0),
-      new THREE.Vector3(0, 0, 5),
-      new THREE.Vector3(5, 0, 0),
-      new THREE.Vector3(0, 0, -5),
-      new THREE.Vector3(-5, 0, 0),
-    ];
-    
-    // Calculate the total length of the path
-    let totalLength = 0;
-    for (let i = 1; i < path.length; i++) {
-      totalLength += path[i].distanceTo(path[i - 1]);
-    }
-    
-    // Define the speed
-    const speed = 5; // units per second
-    
-    // Calculate the time required to complete the path
-    const time = totalLength / speed;
-    
-    // Set up a timer to move the object along the path
-    let elapsedTime = 0;
-    const timer = setInterval(() => {
-      // Calculate the position of the object along the path
-      const distance = speed * elapsedTime;
-      let currentLength = 0;
-      let index = 0;
-      while (index < path.length - 1 && currentLength + path[index + 1].distanceTo(path[index]) < distance) {
-        currentLength += path[index + 1].distanceTo(path[index]);
-        index++;
-      }
-      const start = path[index];
-      const end = path[index + 1];
-      const ratio = (distance - currentLength) / end.distanceTo(start);
-      const position = start.clone().lerp(end, ratio);
-    
-      // Update the position of the object
-      this.character.position.copy(position);
-    
-      // Update the elapsed time
-      elapsedTime += 0.01; // 10 milliseconds
-    
-      // Stop the timer if the object has reached the end of the path
-      if (elapsedTime >= time) {
-        clearInterval(timer);
-      }
-    }, 10); // 10 milliseconds
-
     // this.character_animation = new Character_animation({
     //   animations: characterAnimations,
     //   input,
     // });
   }
 
-  moveCharacter(deltaT: number) {
+  async moveCharacter(deltaT: number) {
     //lmao wtf =))
     if (this.currentMoveTo) return;
 
@@ -216,14 +139,69 @@ export default class Character {
 
     if (!this.currentMoveTo) return;
 
+    const startMoveVector = new Vector3(
+      this.currentStartMove?.[0],
+      this.character.position.y,
+      this.currentStartMove?.[1]
+    );
+
     const moveToVector = new Vector3(
       this.currentMoveTo[0],
       this.character.position.y,
       this.currentMoveTo[1]
     );
 
+    // this.character.lookAt(moveToVector);
+
+    const speed = 10;
+
+    let elapsedTime = 0;
+
+    // sai số khi rotate của nhân vật
+    const ERROR_ROTATE = 0.1;
+
+    const vectorUp = new Vector3(0, 1, 0);
+
+    let angleRotate = 1;
+
+    const characterForwardVector = new Vector3();
+    this.character.getWorldDirection(characterForwardVector);
+
+    const RAF_rotate = () => {
+      if (
+        moveToVector.angleTo(characterForwardVector) <= ERROR_ROTATE ||
+        (characterForwardVector.x == 0 && characterForwardVector.z == 0)
+      ) {
+        return;
+      }
+
+      requestAnimationFrame((t) => {
+        RAF_rotate();
+      });
+
+      const axis = new Vector3();
+      axis.crossVectors(moveToVector, characterForwardVector).normalize();
+
+      // angleRotate = axis.y < 0 ? 1 : -1;
+
+      const ROTATE_CONSTANT = 0.19;
+
+      const angle = ROTATE_CONSTANT * angleRotate;
+      const quaternion = new THREE.Quaternion().setFromAxisAngle(
+        vectorUp,
+        angle
+      );
+      this.character.quaternion.multiplyQuaternions(
+        this.character.quaternion,
+        quaternion
+      );
+    };
+
+    RAF_rotate();
+
     const RAF_move = () => {
       if (this.character.position.distanceTo(moveToVector) <= 0.1) {
+        this.currentStartMove = this.currentMoveTo;
         this.currentMoveTo = null;
         return;
       }
@@ -232,11 +210,14 @@ export default class Character {
         RAF_move();
       });
 
-      this.character.position.lerp(moveToVector, 0.054);
+      const distance = speed * elapsedTime;
 
-      // this.character.position.add(
-      //   moveToVector.normalize().multiplyScalar(SPEED * deltaT)
-      // );
+      const ratio = distance / moveToVector.distanceTo(startMoveVector);
+      const position = startMoveVector.clone().lerp(moveToVector, ratio);
+
+      this.character.position.copy(position);
+
+      elapsedTime += deltaT;
     };
 
     RAF_move();
@@ -250,8 +231,6 @@ export default class Character {
         this.character.position.x,
         this.character.position.z,
       ]);
-
-      this.character.lookAt(player.character.position);
 
       if (
         !(
@@ -269,15 +248,16 @@ export default class Character {
           }) || [];
       }
     } catch (err) {
-      console.log(err);
+      // khong can quan tam, console dep hon la duoc
+      // console.log(err);
     }
   }
 
   update(deltaT: number, customProps?: any) {
     const { entities } = customProps;
 
-    // this.chasePlayer(entities[0]);
-    // this.moveCharacter(deltaT);
+    this.chasePlayer(entities[0]);
+    this.moveCharacter(deltaT);
 
     this.characterMixer?.update(deltaT);
   }
