@@ -49,17 +49,18 @@ export default class Character_control {
   updateNewPosition(deltaT: number) {
     // vector chi huong di chuyen
     const direction = new Vector3().copy(this.currentPosition);
+    const { forward, backward, left, right } = this.input.keys;
 
     const frontVector = new Vector3(
       0,
       0,
-      (this.input.keys.forward || this.isRoll ? 1 : 0) -
-        (this.input.keys.backward && !this.isRoll ? 1 : 0)
+      ((forward && !backward) || this.isRoll ? 1 : 0) -
+        (backward && !this.isRoll ? 1 : 0)
     );
 
     const sideVector = new Vector3(
-      (this.input.keys.left && !this.isRoll ? 1 : 0) -
-        (this.input.keys.right && !this.isRoll ? 1 : 0),
+      (left && !right && !this.isRoll ? 1 : 0) -
+        (right && !this.isRoll ? 1 : 0),
       0,
       0
     );

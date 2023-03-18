@@ -73,7 +73,7 @@ class Game {
 
     this.stats = Stats();
     // fps show
-    document.body.appendChild(this.stats.dom);
+    // document.body.appendChild(this.stats.dom);
 
     this.entitiesCharacter.push(
       new Player({

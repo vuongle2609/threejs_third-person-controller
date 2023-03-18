@@ -151,53 +151,9 @@ export default class Character {
       this.currentMoveTo[1]
     );
 
-    // this.character.lookAt(moveToVector);
-
     const speed = 10;
 
     let elapsedTime = 0;
-
-    // sai số khi rotate của nhân vật
-    const ERROR_ROTATE = 0.1;
-
-    const vectorUp = new Vector3(0, 1, 0);
-
-    let angleRotate = 1;
-
-    const characterForwardVector = new Vector3();
-    this.character.getWorldDirection(characterForwardVector);
-
-    const RAF_rotate = () => {
-      if (
-        moveToVector.angleTo(characterForwardVector) <= ERROR_ROTATE ||
-        (characterForwardVector.x == 0 && characterForwardVector.z == 0)
-      ) {
-        return;
-      }
-
-      requestAnimationFrame((t) => {
-        RAF_rotate();
-      });
-
-      const axis = new Vector3();
-      axis.crossVectors(moveToVector, characterForwardVector).normalize();
-
-      // angleRotate = axis.y < 0 ? 1 : -1;
-
-      const ROTATE_CONSTANT = 0.19;
-
-      const angle = ROTATE_CONSTANT * angleRotate;
-      const quaternion = new THREE.Quaternion().setFromAxisAngle(
-        vectorUp,
-        angle
-      );
-      this.character.quaternion.multiplyQuaternions(
-        this.character.quaternion,
-        quaternion
-      );
-    };
-
-    RAF_rotate();
 
     const RAF_move = () => {
       if (this.character.position.distanceTo(moveToVector) <= 0.1) {
@@ -221,6 +177,22 @@ export default class Character {
     };
 
     RAF_move();
+  }
+
+  rotateCharacter(deltaT: number) {
+    if (!this.currentMoveTo) return;
+
+    const moveToVector = new Vector3(
+      this.currentMoveTo[0],
+      this.character.position.y,
+      this.currentMoveTo[1]
+    );
+
+    const target = this.character.clone();
+
+    target.lookAt(moveToVector);
+
+    this.character.quaternion.slerp(target.quaternion, deltaT * 8);
   }
 
   chasePlayer(player: Player) {
@@ -248,7 +220,7 @@ export default class Character {
           }) || [];
       }
     } catch (err) {
-      // khong can quan tam, console dep hon la duoc
+      // khong can quan tam, console dep hon la duoc =))
       // console.log(err);
     }
   }
@@ -258,7 +230,7 @@ export default class Character {
 
     this.chasePlayer(entities[0]);
     this.moveCharacter(deltaT);
-
+    this.rotateCharacter(deltaT);
     this.characterMixer?.update(deltaT);
   }
 }

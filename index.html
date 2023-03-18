@@ -11,14 +11,59 @@
     <div id="app">
       <!-- <div class="guide">A,S,D,W to move<br />Space to jump</div> -->
 
-      <div class="ingame_gui">
-        <div class="statuses"></div>
+      <div
+        class="ingame_gui fixed top-0 left-0 right-0 bottom-0 p-[40px] flex flex-col justify-between"
+      >
+        <div class="flex items-center">
+          <div
+            class="w-[80px] h-[80px] border-[2px] border-black bg-black-rgba"
+          ></div>
+          <div class="ml-4">
+            <div
+              class="w-[400px] h-4 border-[2px] border-black shadow-md bg-red-700 mb-4"
+            ></div>
+            <div
+              class="w-[400px] h-4 border-[2px] border-black shadow-md bg-green-700"
+            ></div>
+          </div>
+        </div>
 
-        <div class="items"></div>
+        <div class="bottom flex justify-between items-end">
+          <div class="flex items-center">
+            <div
+              class="border-[3px] border-black w-[100px] h-[120px] bg-black-rgba"
+            ></div>
+
+            <div class="flex flex-col mx-2">
+              <div
+                class="border-[3px] border-black w-[100px] h-[120px] bg-black-rgba mb-2"
+              ></div>
+              <div
+                class="border-[3px] border-black w-[100px] h-[120px] bg-black-rgba"
+              ></div>
+            </div>
+
+            <div
+              class="border-[3px] border-black w-[100px] h-[120px] bg-black-rgba"
+            ></div>
+          </div>
+
+          <div
+            class="bg-black-rgba border-[3px] border-black text-white px-2 min-w-[130px] text-right text-xl"
+          >
+            2609
+          </div>
+        </div>
       </div>
 
-      <div class="modal_start">
-        <button>Start</button>
+      <div
+        class="modal_start fixed top-0 left-0 right-0 bottom-0 z-40 bg-black-rgba flex items-center justify-center "
+      >
+        <button
+          class="w-[200px] h-[100px] border-none outline-none bg-gray-200"
+        >
+          Start
+        </button>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

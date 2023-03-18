@@ -1,6 +1,6 @@
 import { GUI } from "dat.gui";
 import * as THREE from "three";
-import { Quaternion } from "three";
+import { Quaternion, Vector2, Vector3 } from "three";
 import MouseControl from "./Action/mouseMove";
 
 interface PropsType {
@@ -10,13 +10,14 @@ interface PropsType {
   mouse: MouseControl;
 }
 
+const pow = Math.pow;
+
 export default class Camera_movement {
   camera: THREE.PerspectiveCamera;
   character: THREE.Object3D;
   currentPosition: THREE.Vector3;
   currentLookat: THREE.Vector3;
   mouse_control: MouseControl;
-  test = 16;
   characterRotateBox: THREE.Object3D<THREE.Event>;
 
   constructor({ character, camera, mouse, characterRotateBox }: PropsType) {
@@ -29,13 +30,28 @@ export default class Camera_movement {
     this.currentLookat = new THREE.Vector3();
   }
 
-  private calculateIdealOffset() {
-    const maxY = 30;
-    const minY = 8;
+  private get NewCameraY() {
+    const maxY = 44;
+    const minY = -20;
     const originY = minY - maxY;
     const newY = originY * this.mouse_control.mousePercentScreenY;
 
-    const idealOffset = new THREE.Vector3(0, minY - newY, -30);
+    return minY - newY;
+  }
+
+  private get NewCameraZ() {
+    const maxZ = -1;
+    const minZ = -36 * 2;
+    const originZ = minZ - maxZ;
+    const MPY = this.mouse_control.mousePercentScreenY;
+    const newPercentMouse = MPY > 0.5 ? 0.5 + (0.5 - MPY) : MPY;
+    const newZ = originZ * newPercentMouse;
+
+    return newZ;
+  }
+
+  private calculateIdealOffset() {
+    const idealOffset = new THREE.Vector3(0, this.NewCameraY, this.NewCameraZ);
     idealOffset.applyQuaternion(
       new Quaternion().setFromEuler(this.characterRotateBox.rotation.clone())
     );
@@ -44,16 +60,9 @@ export default class Camera_movement {
   }
 
   private calculateIdealLookat() {
-    const maxY = 34;
-    const minY = 6;
-    const originY = minY - maxY;
-    const newY = originY * this.mouse_control.mousePercentScreenY;
+    const { x, y, z } = this.character.position;
+    const idealLookat = new Vector3(x, 3.4, z);
 
-    const idealLookat = new THREE.Vector3(0, 0, maxY + newY);
-    idealLookat.applyQuaternion(
-      new Quaternion().setFromEuler(this.characterRotateBox.rotation.clone())
-    );
-    idealLookat.add(this.character.position.clone());
     return idealLookat;
   }
 
@@ -68,10 +77,10 @@ export default class Camera_movement {
     const t1 = 1;
 
     this.currentPosition.lerp(idealOffset, t);
-    this.currentLookat.lerp(idealLookat, t);
+    // this.currentLookat.lerp(idealLookat, t);
 
     this.camera.position.copy(this.currentPosition);
-    this.camera.lookAt(this.currentLookat);
+    this.camera.lookAt(idealLookat);
   }
 
   update(deltaT: number) {

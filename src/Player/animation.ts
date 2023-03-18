@@ -44,23 +44,25 @@ export default class Character_animation {
 
     this.fsm.trans("idle");
 
-    document.addEventListener(
-      "pointerlockchange",
-      () => this.handleLockChange(),
-      false
-    );
+    // document.addEventListener(
+    //   "pointerlockchange",
+    //   () => this.handleLockChange(),
+    //   false
+    // );
   }
 
-  handleLockChange() {
-    const canvas = document.querySelector("canvas");
-    if (document.pointerLockElement !== canvas) {
-      // this.fsm.trans("idle");
-    }
-  }
+  // handleLockChange() {
+  //   const canvas = document.querySelector("canvas");
+  //   if (document.pointerLockElement !== canvas) {
+  //     // this.fsm.trans("idle");
+  //   }
+  // }
 
   handleAnimation() {
     const { keys } = this.input;
 
+    //used to have run left right
+    console.log(this.fsm.state);
     if (this.preventAction) return;
     if (keys.leftClick || this.attackStack > 0) {
       this.handleLeftClick();
@@ -122,16 +124,17 @@ export default class Character_animation {
 
   handlePunch(state: "hit" | "hitSecond") {
     this.preventAction = true;
-    const { stateAction, prevStateAction } = this.getAction(state);
+    const { stateAction, prevStateAction, prevStateKey, stateKey } =
+      this.getAction(state);
 
-    if (stateAction) {
+    if (stateAction && prevStateAction) {
       const mixer = stateAction.getMixer();
 
       stateAction.reset();
       stateAction.clampWhenFinished = true;
       stateAction.loop = THREE.LoopOnce;
 
-      stateAction.crossFadeFrom(prevStateAction as AnimationAction, 0.2, true);
+      stateAction.crossFadeFrom(prevStateAction as AnimationAction, 0.1, true);
 
       const onComplete = () => {
         this.preventAction = false;
@@ -150,6 +153,12 @@ export default class Character_animation {
     const { stateKey, stateAction, prevStateKey, prevStateAction } =
       this.getAction();
 
+    let crossNumber = 0.3;
+
+    if (prevStateKey == "running" && prevStateAction) {
+      crossNumber = 0.2;
+    }
+
     if (prevStateAction && stateAction) {
       if (prevStateKey != stateKey && !stateAction.isRunning()) {
         stateAction.time = 0.0;
@@ -159,7 +168,7 @@ export default class Character_animation {
 
         stateAction.crossFadeFrom(
           prevStateAction as AnimationAction,
-          0.3,
+          crossNumber,
           true
         );
         stateAction.play();
