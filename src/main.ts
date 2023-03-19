@@ -82,11 +82,11 @@ class Game {
       })
     );
 
-    this.entitiesCharacter.push(
-      new Character({
-        scene: this.scene,
-      })
-    );
+    // this.entitiesCharacter.push(
+    //   new Character({
+    //     scene: this.scene,
+    //   })
+    // );
 
     this.clock = new THREE.Clock();
     this.gameloop(0);
