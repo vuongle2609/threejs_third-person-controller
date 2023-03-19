@@ -131,12 +131,13 @@ export default class Character {
     // });
   }
 
-  async moveCharacter(deltaT: number) {
+  moveCharacter(deltaT: number) {
     //lmao wtf =))
     if (this.currentMoveTo) return;
 
     this.currentMoveTo = this.arrayMove.pop() || null;
 
+    // =)))))))))))))))
     if (!this.currentMoveTo) return;
 
     const startMoveVector = new Vector3(
@@ -197,11 +198,16 @@ export default class Character {
 
   chasePlayer(player: Player) {
     try {
-      const { x, z } = player.character.position;
-      const nearestPlayer = findNearestPosition(verticesFormat, [x, z]);
+      const { x: playerX, z: playerZ } = player.character.position;
+      const nearestPlayer = findNearestPosition(verticesFormat, [
+        playerX,
+        playerZ,
+      ]);
+
+      const { x: characterX, z: characterZ } = this.character.position;
       const nearestMob = findNearestPosition(verticesFormat, [
-        this.character.position.x,
-        this.character.position.z,
+        characterX,
+        characterZ,
       ]);
 
       if (

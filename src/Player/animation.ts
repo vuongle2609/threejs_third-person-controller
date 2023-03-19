@@ -113,6 +113,9 @@ export default class Character_animation {
       const onComplete = () => {
         this.preventAction = false;
 
+        // fix error when holding space
+        this.fsm.trans("idle");
+
         mixer.removeEventListener("finished", onComplete);
       };
 

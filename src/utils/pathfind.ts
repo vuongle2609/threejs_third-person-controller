@@ -56,7 +56,7 @@ export const findPath = ({
         if (newG < currentNeighbor.g || currentNeighbor.g === null) {
           currentNeighbor.g = newG;
           currentNeighbor.f =
-            newG + 10 * findDistance(currentNeighbor.points, target.points);
+            newG + 20 * findDistance(currentNeighbor.points, target.points);
 
           if (
             !open.some((e) => isEqualPosition(e.points, currentNeighbor.points))
