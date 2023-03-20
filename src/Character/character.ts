@@ -13,6 +13,7 @@ import verticesFormat from "../configs/navMesh";
 import { findPath } from "../utils/pathfind";
 import { Vector3 } from "three";
 import { SPEED } from "../configs/constants";
+import { MeshBVH } from "three-mesh-bvh";
 
 interface PropsType {
   scene: THREE.Scene;
@@ -41,7 +42,7 @@ export default class Character {
     const fbxLoader = new FBXLoader(manager);
 
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
-
+    // const bvh = new MeshBVH(character.children[0]);
     this.character = character;
 
     character.scale.set(0.04, 0.04, 0.04);

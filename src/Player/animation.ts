@@ -62,7 +62,7 @@ export default class Character_animation {
     const { keys } = this.input;
 
     //used to have run left right
-    console.log(this.fsm.state);
+
     if (this.preventAction) return;
     if (keys.leftClick || this.attackStack > 0) {
       this.handleLeftClick();

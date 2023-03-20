@@ -61,7 +61,7 @@ export default class Camera_movement {
 
   private calculateIdealLookat() {
     const { x, y, z } = this.character.position;
-    const idealLookat = new Vector3(x, 3.4, z);
+    const idealLookat = new Vector3(x, this.character.position.y + 3.4, z);
 
     return idealLookat;
   }

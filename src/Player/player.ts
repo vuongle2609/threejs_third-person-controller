@@ -37,39 +37,15 @@ export default class Player {
 
     const manager = new THREE.LoadingManager();
 
-    // manager.onProgress = function (item, loaded, total) {
-    //   console.log("Loaded:", Math.round((loaded / total) * 100) + "%");
-    // };
-
     const fbxLoader = new FBXLoader(manager);
 
-    // const glbLoader = new GLTFLoader();
-    // const robot = await glbLoader.loadAsync(
-    //   "/assets/raid_boss_shogun/scene.gltf"
-    // );
-
-    // robot.scene.scale.set(3, 3, 3);
-    // robot.scene.position.add(new THREE.Vector3(0, 0, 40));
-
-    // robot.scene.rotation.set(0, 3.5, 0);
-
-    // robot.scene.traverse((item) => {
-    //   item.receiveShadow = true;
-    //   item.castShadow = true;
-    // });
-
-    // this.scene.add(robot.scene);
-
     const character = await fbxLoader.loadAsync("/assets/char.fbx");
-    // console.log(
-    //   "Loaded succesfully %ccharacter",
-    //   "color: red; font-weight: bold"
-    // );
 
     this.characterRotateBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
 
     this.character = character;
 
+    character.position.y = 20;
     character.scale.set(0.04, 0.04, 0.04);
     character.receiveShadow = true;
     character.castShadow = true;
@@ -171,6 +147,7 @@ export default class Player {
     });
 
     this.character_control = new Character_control({
+      scene: this.scene,
       character: this.character,
       input,
       mouse: this.mouse_control,

@@ -1,12 +1,15 @@
 import * as THREE from "three";
-import { Vector3 } from "three";
+import { BufferGeometry, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Character_animation from "./animation";
 import { SPEED } from "../configs/constants";
 import BasicCharacterControllerInput from "../Action/input";
 import MouseControl from "../Action/mouseMove";
+import { MeshBVH, acceleratedRaycast } from "three-mesh-bvh";
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 interface PropsType {
+  scene: THREE.Scene;
   character: THREE.Object3D;
   characterRotateBox: THREE.Object3D;
   input: BasicCharacterControllerInput;
@@ -29,8 +32,13 @@ export default class Character_control {
     allowSet: true,
     angle: 1,
   };
+  raycaster: THREE.Raycaster;
+  scene: THREE.Scene;
+  plane: THREE.Object3D<THREE.Event> | undefined;
+  bvh: MeshBVH;
 
   constructor({
+    scene,
     character,
     input,
     mouse,
@@ -42,6 +50,14 @@ export default class Character_control {
     this.characterRotateBox = characterRotateBox;
     this.mouse_control = mouse;
     this.animation = animation;
+    this.scene = scene;
+
+    this.raycaster = new THREE.Raycaster();
+    this.raycaster.far = 10;
+    this.raycaster.firstHitOnly = true;
+
+    this.plane = this.scene.getObjectByName("ground_test");
+    console.log(this.character.children[0]);
 
     this.currentPosition = new Vector3();
   }
@@ -159,6 +175,17 @@ export default class Character_control {
 
     if (!this.animation.preventAction)
       this.character.position.add(new Vector3(moveVector.x, 0, moveVector.z));
+
+    this.raycaster.set(this.character.position, new Vector3(0, -1, 0));
+
+    const gravityVector = new Vector3(0, -9.8, 0);
+
+    this.character.position.add(gravityVector.multiplyScalar(deltaT));
+
+    if (this.plane) {
+      const a = this.raycaster.intersectObject(this.plane);
+      // console.log(a);
+    }
   }
 
   update(deltaT: number) {

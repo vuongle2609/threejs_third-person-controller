@@ -102,15 +102,23 @@ class Game {
     const [groundTexure, groundTexureNor, groundTexureARM] =
       textureGroundAssets.map((itemUrl) => {
         const textureReturn = new THREE.TextureLoader().load(itemUrl);
-        textureReturn.repeat.set(10, 10);
+        textureReturn.repeat.set(1, 1);
         textureReturn.wrapS = THREE.RepeatWrapping;
         textureReturn.wrapT = THREE.RepeatWrapping;
 
         return textureReturn;
       });
 
+    const disMap = new THREE.TextureLoader().load(
+      "/043-ue4-heightmap-guide-02.jpg"
+    );
+
+    disMap.wrapS = disMap.wrapT = THREE.RepeatWrapping;
+
+    disMap.repeat.set(1, 1);
+
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(120, 120),
+      new THREE.PlaneGeometry(120, 120, 1000, 1000),
       new THREE.MeshStandardMaterial({
         map: groundTexure,
         normalMap: groundTexureNor,
@@ -118,8 +126,11 @@ class Game {
         roughnessMap: groundTexureARM,
         metalnessMap: groundTexureARM,
         normalScale: new Vector2(50, 50),
+        // displacementMap: disMap,
+        // displacementScale: 10,
       })
     );
+    plane.name = "ground_test";
     plane.rotation.set(-Math.PI / 2, 0, 0);
     plane.position.set(0, 0, 0);
     plane.receiveShadow = true;
