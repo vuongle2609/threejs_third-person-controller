@@ -117,8 +117,12 @@ class Game {
 
     disMap.repeat.set(1, 1);
 
+    const PlaneGeometry = new THREE.PlaneGeometry(120, 120, 100, 100);
+    PlaneGeometry.rotateX(-Math.PI / 2);
+    // PlaneGeometry.normalizeNormals();
+
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(120, 120, 1000, 1000),
+      PlaneGeometry,
       new THREE.MeshStandardMaterial({
         map: groundTexure,
         normalMap: groundTexureNor,
@@ -131,7 +135,7 @@ class Game {
       })
     );
     plane.name = "ground_test";
-    plane.rotation.set(-Math.PI / 2, 0, 0);
+    plane.geometry.computeVertexNormals();
     plane.position.set(0, 0, 0);
     plane.receiveShadow = true;
     this.scene.add(plane);
@@ -150,7 +154,7 @@ class Game {
 
     const deltaT = this.clock.getDelta();
 
-    this.entitiesCharacter.forEach((item, index, array) => {
+    this.entitiesCharacter.forEach((item, _, array) => {
       item.update(deltaT, {
         entities: array,
       });

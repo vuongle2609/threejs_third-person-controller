@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BufferGeometry, Vector3 } from "three";
+import { BufferGeometry, Object3D, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Character_animation from "./animation";
 import { SPEED } from "../configs/constants";
@@ -36,6 +36,7 @@ export default class Character_control {
   scene: THREE.Scene;
   plane: THREE.Object3D<THREE.Event> | undefined;
   bvh: MeshBVH;
+  deltaTPreventRaycast = 0;
 
   constructor({
     scene,
@@ -53,11 +54,10 @@ export default class Character_control {
     this.scene = scene;
 
     this.raycaster = new THREE.Raycaster();
-    this.raycaster.far = 10;
+    this.raycaster.far = 1;
     this.raycaster.firstHitOnly = true;
 
     this.plane = this.scene.getObjectByName("ground_test");
-    console.log(this.character.children[0]);
 
     this.currentPosition = new Vector3();
   }
@@ -168,24 +168,45 @@ export default class Character_control {
       const newCharacterRollMove = characterForwardVector
         .normalize()
         .multiplyScalar(SPEED * deltaT);
-      this.character.position.add(
-        new Vector3(newCharacterRollMove.x, 0, newCharacterRollMove.z)
-      );
+
+      newCharacterRollMove.y = 0;
+      this.character.position.add(newCharacterRollMove);
     }
 
-    if (!this.animation.preventAction)
-      this.character.position.add(new Vector3(moveVector.x, 0, moveVector.z));
+    if (!this.animation.preventAction) {
+      moveVector.y = 0;
+      this.character.position.add(moveVector);
+    }
 
     this.raycaster.set(this.character.position, new Vector3(0, -1, 0));
 
-    const gravityVector = new Vector3(0, -9.8, 0);
+    this.deltaTPreventRaycast += deltaT;
 
-    this.character.position.add(gravityVector.multiplyScalar(deltaT));
+    // handle touch ground gravity
+    let groundVector;
+    if (true) {
+      const intersects = this.raycaster.intersectObject(
+        this.plane as Object3D,
+        false
+      );
+      groundVector = intersects[0]?.face?.normal;
 
-    if (this.plane) {
-      const a = this.raycaster.intersectObject(this.plane);
-      // console.log(a);
+      this.deltaTPreventRaycast = 0;
     }
+
+    let gravityVector = new Vector3(0, -1, 0);
+
+    if (groundVector) {
+      gravityVector.sub(
+        groundVector.multiplyScalar(
+          gravityVector.clone().dot(groundVector.clone())
+        )
+      );
+    }
+    console.log("cal", gravityVector.multiplyScalar(30 * deltaT).y);
+
+    // console.log(gravityVector.multiplyScalar(10 * deltaT).round());
+    this.character.position.add(gravityVector.multiplyScalar(30 * deltaT));
   }
 
   update(deltaT: number) {
