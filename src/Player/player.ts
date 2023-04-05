@@ -45,7 +45,7 @@ export default class Player {
 
     this.character = character;
 
-    character.position.y = 20;
+    // character.position.y = 20;
     character.scale.set(0.04, 0.04, 0.04);
     character.receiveShadow = true;
     character.castShadow = true;
@@ -72,11 +72,6 @@ export default class Player {
     };
 
     const onLoad = (name: string, animation: THREE.Group) => {
-      // console.log(
-      //   `Loaded succesfully %c${name}`,
-      //   "color: red; font-weight: bold"
-      // );
-
       if (name == "roll") {
         const newAnimation = this.characterMixer.clipAction(
           animation.animations[0]
@@ -129,6 +124,10 @@ export default class Player {
     animationsModels.forEach((item, index) => {
       onLoad(urlsAnimationModels[index].name, item);
     });
+
+    const modalLoading = document.querySelector(".modal_loading");
+
+    modalLoading?.classList.add("hidden");
 
     this.scene.add(this.character);
 

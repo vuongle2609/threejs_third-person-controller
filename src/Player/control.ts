@@ -32,11 +32,7 @@ export default class Character_control {
     allowSet: true,
     angle: 1,
   };
-  raycaster: THREE.Raycaster;
   scene: THREE.Scene;
-  plane: THREE.Object3D<THREE.Event> | undefined;
-  bvh: MeshBVH;
-  deltaTPreventRaycast = 0;
 
   constructor({
     scene,
@@ -52,12 +48,6 @@ export default class Character_control {
     this.mouse_control = mouse;
     this.animation = animation;
     this.scene = scene;
-
-    this.raycaster = new THREE.Raycaster();
-    this.raycaster.far = 1;
-    this.raycaster.firstHitOnly = true;
-
-    this.plane = this.scene.getObjectByName("ground_test");
 
     this.currentPosition = new Vector3();
   }
@@ -118,7 +108,7 @@ export default class Character_control {
     this.character.getWorldDirection(characterForwardVector);
 
     // sai số khi rotate của nhân vật
-    const ERROR_ROTATE = 0.1;
+    const ERROR_ROTATE = 0.17;
 
     // chi rotate nhan vat khi dang chay hoac dung yen
     if (
@@ -177,36 +167,6 @@ export default class Character_control {
       moveVector.y = 0;
       this.character.position.add(moveVector);
     }
-
-    this.raycaster.set(this.character.position, new Vector3(0, -1, 0));
-
-    this.deltaTPreventRaycast += deltaT;
-
-    // handle touch ground gravity
-    let groundVector;
-    if (true) {
-      const intersects = this.raycaster.intersectObject(
-        this.plane as Object3D,
-        false
-      );
-      groundVector = intersects[0]?.face?.normal;
-
-      this.deltaTPreventRaycast = 0;
-    }
-
-    let gravityVector = new Vector3(0, -1, 0);
-
-    if (groundVector) {
-      gravityVector.sub(
-        groundVector.multiplyScalar(
-          gravityVector.clone().dot(groundVector.clone())
-        )
-      );
-    }
-    console.log("cal", gravityVector.multiplyScalar(30 * deltaT).y);
-
-    // console.log(gravityVector.multiplyScalar(10 * deltaT).round());
-    this.character.position.add(gravityVector.multiplyScalar(30 * deltaT));
   }
 
   update(deltaT: number) {

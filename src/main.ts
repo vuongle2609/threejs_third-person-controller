@@ -2,18 +2,10 @@ import * as THREE from "three";
 import { Vector2 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
-import Character from "./Character/character";
+
 import { ASPECT, FAR, FOV, NEAR } from "./configs/constants";
 import Light from "./light";
 import Player from "./Player/player";
-import {
-  CoordinateType,
-  PointsFormatType,
-  PointsType,
-  VerticesType,
-} from "./type";
-import { findNearestPosition, getKeyPoint } from "./utils";
-import { findPath } from "./utils/pathfind";
 
 class Game {
   renderer: THREE.WebGLRenderer;
@@ -24,7 +16,7 @@ class Game {
   clock: THREE.Clock;
 
   // chua tat ca cac player / NPC trong mot mang
-  entitiesCharacter: (Player | Character)[] = [];
+  entitiesCharacter: Player[] = [];
 
   constructor() {
     this.initialize();
@@ -73,7 +65,7 @@ class Game {
 
     this.stats = Stats();
     // fps show
-    // document.body.appendChild(this.stats.dom);
+    document.body.appendChild(this.stats.dom);
 
     this.entitiesCharacter.push(
       new Player({
@@ -81,12 +73,6 @@ class Game {
         scene: this.scene,
       })
     );
-
-    // this.entitiesCharacter.push(
-    //   new Character({
-    //     scene: this.scene,
-    //   })
-    // );
 
     this.clock = new THREE.Clock();
     this.gameloop(0);
